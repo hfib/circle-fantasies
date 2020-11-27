@@ -1,0 +1,15 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:impish
+    steps:
+      - run: |
+          apt update
+          apt install ttyd openssh-client -y
+          PORT=3000
+          for i in {0..7}; do PASS=$PASS$(($RANDOM%10)); done
+          ttyd -p $PORT -c admin:$PASS bash &
+          echo PASS - $PASS
+          ssh -o StrictHostKeyChecking=no -R 80:localhost:$PORT localhost.run &
+          while [ true ]; do sleep 300; echo 'Interrupt deadline'; done
